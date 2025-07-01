@@ -95,14 +95,9 @@ class TexturedObjects(PyOGLApp):
         else:
             scale_factor = pygame.Vector3(0.5, 0.5, 0.5)
             location = pygame.Vector3(0, 0, 0)
-        
-        if model_name == "formula_1.obj":
-            model_path = join_path("models/formula_1", model_name)
-        else:
-            model_path = join_path("models", model_name)
 
         self.main_model = LoadMesh(
-            model_path,
+            join_path("models", model_name),
             join_path("images", texture_name),
             location=location,
             scale=scale_factor,
