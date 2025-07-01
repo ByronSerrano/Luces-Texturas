@@ -19,6 +19,10 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 def join_path(object1, object2):
     return os.path.join(BASE_DIR, object1, object2)
 
+def join_nested_path(folder1, folder2, file_name):
+    """Para archivos en subcarpetas"""
+    return os.path.join(BASE_DIR, folder1, folder2, file_name)
+
 class TexturedObjects(PyOGLApp):
     def __init__(self):
         super().__init__(850, 200, 1000, 600)
@@ -85,15 +89,20 @@ class TexturedObjects(PyOGLApp):
     def load_model(self, model_name, texture_name):
         """Cargar un nuevo modelo principal"""
 
-        if model_name == "ferrari.obj":
+        if model_name == "formula_1.obj":
             scale_factor = pygame.Vector3(0.05, 0.05, 0.05)  # MUCHÍSIMO más pequeño
             location = pygame.Vector3(0, 0, -3)
         else:
             scale_factor = pygame.Vector3(0.5, 0.5, 0.5)
             location = pygame.Vector3(0, 0, 0)
+        
+        if model_name == "formula_1.obj":
+            model_path = join_path("models/formula_1", model_name)
+        else:
+            model_path = join_path("models", model_name)
 
         self.main_model = LoadMesh(
-            join_path("models", model_name),
+            model_path,
             join_path("images", texture_name),
             location=location,
             scale=scale_factor,
@@ -162,7 +171,7 @@ class TexturedObjects(PyOGLApp):
                 self.key_pressed = True
         elif keys[pygame.K_4]:
             if not self.key_pressed:
-                self.load_model("ferrari.obj", "crate.png")
+                self.load_model("formula_1.obj", "formula1.png")
                 scale_factor = pygame.Vector3(0.2, 0.2, 0.2)
                 self.key_pressed = True
         else:
