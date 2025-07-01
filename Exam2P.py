@@ -33,6 +33,31 @@ class TexturedObjects(PyOGLApp):
         glEnable(GL_CULL_FACE)
 
     def initialise(self):
+        # Print de controles disponibles
+        print("=" * 60)
+        print("CONTROLES DEL PROGRAMA - TEXTURED OBJECTS")
+        print("=" * 60)
+        print("CÁMARA:")
+        print("  W/A/S/D       - Mover cámara (adelante/izquierda/atrás/derecha)")
+        print("  Mouse         - Rotar vista de la cámara")
+        print("  ESC           - Liberar mouse (mostrar cursor)")
+        print("  SPACE         - Capturar mouse (ocultar cursor)")
+        print()
+        print("ILUMINACIÓN:")
+        print("  ↑ (UP)        - Mover luz hacia arriba")
+        print("  ↓ (DOWN)      - Mover luz hacia abajo")
+        print("  ← (LEFT)      - Mover luz hacia la izquierda")
+        print("  → (RIGHT)     - Mover luz hacia la derecha")
+        print()
+        print("TEXTURAS:")
+        print("  T             - Alternar entre textura ON/OFF")
+        print()
+        print("OBJETOS:")
+        print("  - Plano con textura de tierra seca")
+        print("  - Ejes de coordenadas (X=rojo, Y=verde, Z=azul)")
+        print("=" * 60)
+        print()
+
         self.material_textured = Material(join_path("shaders", "texturedvert.vs"), join_path("shaders", "texturedfrag.vs"))
         self.material_untextured = Material(join_path("shaders", "texturedvert.vs"), join_path("shaders", "texturedfrag.vs"))
         
@@ -42,15 +67,15 @@ class TexturedObjects(PyOGLApp):
         # Crear dos planos con diferentes texturas
         self.plane_textured = LoadMesh(
                     join_path("models", "plane.obj"), 
-                    join_path("images", "crate.png"),
-                    location=pygame.Vector3(0, -1.5, 0),
+                    join_path("images", "tierra_seca.jpg"),
+                    location=pygame.Vector3(0, -0.5, 0),
                     material=self.material_textured)
 
         # Para el plano sin textura, usa una imagen de color sólido o una textura simple
         self.plane_colored = LoadMesh(
                     join_path("models", "plane.obj"), 
                     join_path("images", "gray.png"),  # Usa una textura simple existente
-                    location=pygame.Vector3(0, -1.5, 0),
+                    location=pygame.Vector3(0, -0.5, 0),
                     material=self.material_untextured)
 
         self.lights.append(Light(self.light_pos, pygame.Vector3(1, 1, 1), 0))
