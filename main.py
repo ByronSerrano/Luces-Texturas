@@ -31,6 +31,7 @@ class TexturedObjects(PyOGLApp):
         self.rotation_angle = 0
         self.light1_enabled = True
         self.light2_enabled = True
+        self.light_is_white = True
         self.main_model = None
         
         # Imprimir controles al inicializar
@@ -56,14 +57,12 @@ class TexturedObjects(PyOGLApp):
         print("\nMODELOS DISPONIBLES:")
         print("  3        - Cargar Tetera")
         print("  4        - Cargar Ferrari")
-        print("  5        - Cargar Dona")
-        print("  6        - Cargar Lobo")
         print("="*50)
 
     def initialise(self):
         self.material_textured = Material(join_path("shaders", "texturedvert.vs"), join_path("shaders", "texturedfrag.vs"))
         
-        axesmat = Material(join_path("shaders", "vertexcolvert.vs"), join_path("shaders", "vertexcolfrag.vs"))
+        axesmat = Material(join_path("shaders", "vertexcolvert.vs"), join_path("shaders", "vertexcolfrag.fs"))
         self.axes = Axes(pygame.Vector3(0, 0, 0), axesmat)
 
         # Modelo principal - Tetera con animación DESACTIVADA por defecto
@@ -75,7 +74,7 @@ class TexturedObjects(PyOGLApp):
                     material=self.material_textured)
 
         # Crear dos luces - BLANCA y ROJA
-        self.lights.append(Light(self.light_pos, pygame.Vector3(1.0, 1.0, 1.0), 0))  # Luz blanca
+        self.lights.append(Light(self.light_pos, pygame.Vector3(1.0, 1.0, 1.0), 0))   # Luz blanca - índice 0
         self.lights.append(Light(self.light2_pos, pygame.Vector3(1.0, 0.3, 0.3), 1))  # Luz roja
 
         self.camera = Camera(self.screen_width, self.screen_height)
@@ -85,11 +84,19 @@ class TexturedObjects(PyOGLApp):
 
     def load_model(self, model_name, texture_name):
         """Cargar un nuevo modelo principal"""
+
+        if model_name == "ferrari.obj":
+            scale_factor = pygame.Vector3(0.05, 0.05, 0.05)  # MUCHÍSIMO más pequeño
+            location = pygame.Vector3(0, 0, -3)
+        else:
+            scale_factor = pygame.Vector3(0.5, 0.5, 0.5)
+            location = pygame.Vector3(0, 0, 0)
+
         self.main_model = LoadMesh(
             join_path("models", model_name),
             join_path("images", texture_name),
-            location=pygame.Vector3(0, 0, 0),
-            scale=pygame.Vector3(0.5, 0.5, 0.5),
+            location=location,
+            scale=scale_factor,
             material=self.material_textured)
         self.rotation_angle = 0  # Resetear rotación
         print(f"Modelo cargado: {model_name}")
@@ -102,7 +109,7 @@ class TexturedObjects(PyOGLApp):
         if keys[pygame.K_LEFT]:
             self.light_pos.x -= 0.1
             if self.light1_enabled:
-                self.lights[0].position = self.light_pos
+                self.lights[0].position = self.light_pos  # Ahora sí manipula la luz blanca
         if keys[pygame.K_RIGHT]:
             self.light_pos.x += 0.1
             if self.light1_enabled:
@@ -124,22 +131,31 @@ class TexturedObjects(PyOGLApp):
                 print(f"Animación: {'ON' if self.animate else 'OFF'}")
         elif keys[pygame.K_1]:
             if not self.key_pressed:
-                self.light1_enabled = not self.light1_enabled
-                if self.light1_enabled:
-                    self.lights[0].color = pygame.Vector3(1.0, 1.0, 1.0)  # Blanca
+                self.light_is_white = not self.light_is_white
+                if self.light1_enabled:  # Solo cambiar color si la luz está encendida
+                    if self.light_is_white:
+                        self.lights[0].color = pygame.Vector3(1.0, 1.0, 1.0)  # Blanca
+                        print("Luz cambiada a: BLANCA")
+                    else:
+                        self.lights[0].color = pygame.Vector3(1.0, 0.3, 0.3)  # Roja
+                        print("Luz cambiada a: ROJA")
                 else:
-                    self.lights[0].color = pygame.Vector3(0, 0, 0)  # Apagada
+                    print(f"Color cambiado a: {'BLANCA' if self.light_is_white else 'ROJA'} (luz apagada)")
                 self.key_pressed = True
-                print(f"Luz 1 (BLANCA): {'ON' if self.light1_enabled else 'OFF'}")
         elif keys[pygame.K_2]:
             if not self.key_pressed:
-                self.light2_enabled = not self.light2_enabled
-                if self.light2_enabled:
-                    self.lights[1].color = pygame.Vector3(1.0, 0.3, 0.3)  # Roja
+                self.light1_enabled = not self.light1_enabled
+                if self.light1_enabled:
+                    # Encender con el color actual
+                    if self.light_is_white:
+                        self.lights[0].color = pygame.Vector3(1.0, 1.0, 1.0)  # Blanca
+                    else:
+                        self.lights[0].color = pygame.Vector3(1.0, 0.3, 0.3)  # Roja
+                    print(f"Luz ENCENDIDA ({'BLANCA' if self.light_is_white else 'ROJA'})")
                 else:
-                    self.lights[1].color = pygame.Vector3(0, 0, 0)  # Apagada
+                    self.lights[0].color = pygame.Vector3(0, 0, 0)  # Apagada
+                    print("Luz APAGADA")
                 self.key_pressed = True
-                print(f"Luz 2 (ROJA): {'ON' if self.light2_enabled else 'OFF'}")
         elif keys[pygame.K_3]:
             if not self.key_pressed:
                 self.load_model("teapot.obj", "gold.png")
@@ -147,14 +163,7 @@ class TexturedObjects(PyOGLApp):
         elif keys[pygame.K_4]:
             if not self.key_pressed:
                 self.load_model("ferrari.obj", "crate.png")
-                self.key_pressed = True
-        elif keys[pygame.K_5]:
-            if not self.key_pressed:
-                self.load_model("donut.obj", "dona.jpg")
-                self.key_pressed = True
-        elif keys[pygame.K_6]:
-            if not self.key_pressed:
-                self.load_model("wolf.obj", "wolf_body.jpg")
+                scale_factor = pygame.Vector3(0.2, 0.2, 0.2)
                 self.key_pressed = True
         else:
             self.key_pressed = False
